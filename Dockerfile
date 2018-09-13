@@ -4,6 +4,8 @@ FROM node:carbon-alpine as node
 
 FROM docker:stable as docker
 
+FROM hashicorp/terraform:light as terraform
+
 FROM infrastructureascode/aws-cli
 RUN apk -v --update add \
         make \
@@ -12,6 +14,7 @@ RUN apk -v --update add \
         rm /var/cache/apk/*
         
 COPY --from=docker /usr/local/bin/docker /usr/local/bin/docker
+COPY --from=terraform /bin/terraform /usr/local/bin/terraform
 COPY --from=helm /bin/helm /usr/local/bin/helm
 COPY --from=node /usr/local/bin/node /usr/local/bin/node
 COPY --from=node /usr/local/lib/node_modules/ /usr/local/lib/node_modules/
