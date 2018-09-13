@@ -1,18 +1,20 @@
 FROM linkyard/docker-helm as helm
 
-FROM infrastructureascode/aws-cli as aws-cli
+FROM node:carbon-alpine as node
 
 FROM docker:stable as docker
 
-FROM node:8.12-alpine
+FROM infrastructureascode/aws-cli
 RUN apk -v --update add \
         make \
         bash \
         && \
         rm /var/cache/apk/*
         
-COPY --from=aws-cli / /
-COPY --from=helm /bin/helm /bin/helm
-COPY --from=docker /usr/local/bin/docker /bin/
+COPY --from=docker /usr/local/bin/docker /usr/local/bin/docker
+COPY --from=helm /bin/helm /usr/local/bin/helm
+COPY --from=node /usr/local/bin/node /usr/local/bin/node
+COPY --from=node /usr/local/lib/node_modules/ /usr/local/lib/node_modules/
+RUN ln -s /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm
 
 WORKDIR /project
