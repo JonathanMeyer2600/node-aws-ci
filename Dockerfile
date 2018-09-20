@@ -27,7 +27,11 @@ RUN apk -v --update add \
         
 COPY --from=docker /usr/local/bin/docker /usr/local/bin/docker
 COPY --from=terraform /bin/terraform /usr/local/bin/terraform
+
 COPY --from=helm /bin/helm /usr/local/bin/helm
+RUN helm init -c && \
+    helm plugin install https://github.com/hypnoglow/helm-s3.git
+
 COPY --from=kops /usr/local/bin/kops /usr/local/bin/kops
 COPY --from=kops /usr/local/bin/kubectl /usr/local/bin/kubectl
 COPY --from=node /usr/local/bin/node /usr/local/bin/node
