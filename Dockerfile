@@ -6,6 +6,8 @@ FROM docker:stable as docker
 
 FROM hashicorp/terraform:light as terraform
 
+FROM gcr.io/heptio-images/authenticator:v0.3.0-alpine-3.6 as aws-authenticator
+
 # install kops and kubectl stable
 FROM alpine:3.6 as kops
 ARG KUBECTL_SOURCE=kubernetes-release/release
@@ -25,6 +27,8 @@ RUN apk -v --update add \
         make bash git openssh libressl \
         && \
         rm /var/cache/apk/*
+
+COPY --from=aws-authenticator /heptio-authenticator-aws /usr/local/bin/aws-iam-authenticator
         
 COPY --from=docker /usr/local/bin/docker /usr/local/bin/docker
 COPY --from=terraform /bin/terraform /usr/local/bin/terraform
