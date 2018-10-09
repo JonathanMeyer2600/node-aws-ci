@@ -24,7 +24,7 @@ RUN apk add --no-cache --update ca-certificates vim curl jq && \
 # use aws-cli:latest as base
 FROM infrastructureascode/aws-cli
 RUN apk -v --update add \
-        make bash git openssh libressl \
+        make bash git openssh libressl curl \
         && \
         rm /var/cache/apk/*
 
