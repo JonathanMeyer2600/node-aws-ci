@@ -36,7 +36,8 @@ COPY --from=terraform /bin/terraform /usr/local/bin/terraform
 COPY --from=helm /bin/helm /usr/local/bin/helm
 # init helm and preinstall helm s3 plugin
 RUN helm init -c && \
-    helm plugin install https://github.com/hypnoglow/helm-s3.git
+    helm plugin install https://github.com/hypnoglow/helm-s3.git && \
+    helm plugin install https://github.com/chartmuseum/helm-push
 
 COPY --from=kops /usr/local/bin/kops /usr/local/bin/kops
 COPY --from=kops /usr/local/bin/kubectl /usr/local/bin/kubectl
