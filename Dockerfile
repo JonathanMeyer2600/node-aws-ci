@@ -24,7 +24,7 @@ RUN apk add --no-cache --update ca-certificates vim curl jq && \
 # use aws-cli:latest as base
 FROM infrastructureascode/aws-cli
 RUN apk -v --update add \
-        make bash git openssh libressl curl \
+        make bash git openssh libressl curl jq mongodb \
         && \
         rm /var/cache/apk/*
 
@@ -45,5 +45,7 @@ COPY --from=kops /usr/local/bin/kubectl /usr/local/bin/kubectl
 COPY --from=node /usr/local/bin/node /usr/local/bin/node
 COPY --from=node /usr/local/lib/node_modules/ /usr/local/lib/node_modules/
 RUN ln -s /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm
+
+ENV MONGOMS_SYSTEM_BINARY=/usr/bin/mongod
 
 WORKDIR /project
