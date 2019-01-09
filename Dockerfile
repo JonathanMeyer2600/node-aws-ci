@@ -4,7 +4,7 @@ FROM node:10-alpine as node
 
 FROM docker:stable as docker
 
-FROM hashicorp/terraform:light as terraform
+FROM hashicorp/terraform:0.11.11 as terraform
 
 FROM gcr.io/heptio-images/authenticator:v0.3.0-alpine-3.6 as aws-authenticator
 
@@ -24,12 +24,12 @@ RUN apk add --no-cache --update ca-certificates vim curl jq && \
 # use aws-cli:latest as base
 FROM infrastructureascode/aws-cli
 RUN apk -v --update add \
-        make bash git openssh libressl curl jq mongodb \
-        && \
-        rm /var/cache/apk/*
+    make bash git openssh libressl curl jq mongodb \
+    && \
+    rm /var/cache/apk/*
 
 COPY --from=aws-authenticator /heptio-authenticator-aws /usr/local/bin/aws-iam-authenticator
-        
+
 COPY --from=docker /usr/local/bin/docker /usr/local/bin/docker
 COPY --from=terraform /bin/terraform /usr/local/bin/terraform
 
