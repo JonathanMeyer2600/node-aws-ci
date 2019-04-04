@@ -4,7 +4,9 @@ FROM node:10-alpine as node
 
 FROM docker:stable as docker
 
-FROM hashicorp/terraform:0.11.11 as terraform
+FROM docker/compose:1.23.2 as docker-compose
+
+FROM hashicorp/terraform:0.11.13 as terraform
 
 FROM gcr.io/heptio-images/authenticator:v0.3.0-alpine-3.6 as aws-authenticator
 
@@ -28,15 +30,21 @@ RUN apk -v --update add \
     && \
     rm /var/cache/apk/*
 
+# mongo atlas terraform provider
+RUN mkdir -p ~/.terraform.d/plugins/linux_amd64/ && \
+    ATLAS_PROVIDER_URL="https://github.com/akshaykarle/terraform-provider-mongodbatlas/releases/download/v0.8.1/terraform-provider-mongodbatlas_v0.8.1_linux_amd64" && \
+    curl -SsL --retry 5 "${ATLAS_PROVIDER_URL}" > ~/.terraform.d/plugins/linux_amd64/terraform-provider-mongodbatlas_v0.8.1 && \
+    chmod +x ~/.terraform.d/plugins/linux_amd64/terraform-provider-mongodbatlas_v0.8.1
+
 COPY --from=aws-authenticator /heptio-authenticator-aws /usr/local/bin/aws-iam-authenticator
 
 COPY --from=docker /usr/local/bin/docker /usr/local/bin/docker
+COPY --from=docker-compose /usr/local/bin/docker-compose /usr/local/bin/docker-compose
 COPY --from=terraform /bin/terraform /usr/local/bin/terraform
 
 COPY --from=helm /bin/helm /usr/local/bin/helm
 # init helm and preinstall helm s3 plugin
 RUN helm init -c && \
-    helm plugin install https://github.com/hypnoglow/helm-s3.git && \
     helm plugin install https://github.com/chartmuseum/helm-push
 
 COPY --from=kops /usr/local/bin/kops /usr/local/bin/kops
